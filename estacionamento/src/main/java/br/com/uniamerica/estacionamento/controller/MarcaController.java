@@ -4,6 +4,7 @@ import br.com.uniamerica.estacionamento.entity.*;
 import br.com.uniamerica.estacionamento.repository.MarcaRepository;
 import br.com.uniamerica.estacionamento.repository.ModeloRepository;
 import br.com.uniamerica.estacionamento.repository.VeiculoRepository;
+import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -51,13 +52,13 @@ public class MarcaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody Marca marca) {
+    public ResponseEntity<?> cadastrar(@RequestBody @Valid Marca marca) {
         this.marcaRepository.save(marca);
         return ResponseEntity.ok().body("Registro cadastrado com sucesso");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody final Marca marca) {
+    public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody @Valid final Marca marca) {
         if (id.equals(marca.getId()) && !this.marcaRepository.findById(id).isEmpty()) {
             this.marcaRepository.save(marca);
         } else {

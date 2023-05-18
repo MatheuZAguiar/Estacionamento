@@ -1,8 +1,8 @@
 package br.com.uniamerica.estacionamento.controller;
 
-import br.com.uniamerica.estacionamento.entity.Condutor;
 import br.com.uniamerica.estacionamento.entity.Configuracao;
 import br.com.uniamerica.estacionamento.repository.ConfiguracaoRepository;
+import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,13 +46,13 @@ public class ConfiguracaoController {
 
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody Configuracao configuracao) {
+    public ResponseEntity<?> cadastrar(@RequestBody @Valid Configuracao configuracao) {
         this.configuracaoRepository.save(configuracao);
         return ResponseEntity.ok().body("Registro cadastrado com sucesso");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody final Configuracao configuracao) {
+    public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody @Valid final Configuracao configuracao) {
         if (id.equals(configuracao.getId()) && !this.configuracaoRepository.findById(id).isEmpty()) {
             this.configuracaoRepository.save(configuracao);
         } else {
