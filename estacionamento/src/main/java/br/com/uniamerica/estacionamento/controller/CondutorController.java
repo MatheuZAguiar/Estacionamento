@@ -71,7 +71,7 @@ public class CondutorController {
             Condutor condutor = optionalCondutor.get();
             Movimentacao movimentacao = condutor.getMovimentacao();
 
-            if (movimentacao.isAtivo()) {
+            if (movimentacao != null && movimentacao.isAtivo()) {
                 condutorRepository.delete(condutor);
                 return ResponseEntity.ok().body("O registro do condutor foi deletado com sucesso");
             } else {
@@ -79,6 +79,18 @@ public class CondutorController {
                 condutorRepository.save(condutor);
                 return ResponseEntity.ok().body("O condutor estava vinculado a uma ou mais movimentações e foi desativado com sucesso");
             }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @DeleteMapping("deletar/{id}")
+    public ResponseEntity<?> deletando(@PathVariable final Long id) {
+        Optional<Condutor> optionalCondutor = condutorRepository.findById(id);
+
+        if (optionalCondutor.isPresent()) {
+            Condutor condutor = optionalCondutor.get();
+            condutorRepository.delete(condutor);
+            return ResponseEntity.ok().body("O registro do condutor foi deletado com sucesso");
         } else {
             return ResponseEntity.notFound().build();
         }

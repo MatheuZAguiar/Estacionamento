@@ -13,4 +13,6 @@ public interface ConfiguracaoRepository extends JpaRepository<Configuracao, Long
 
     @Query("From Configuracao where ativo = :ativo")
     public List<Configuracao> findByAtivo(@Param("ativo")final boolean ativo);
+
+
 }

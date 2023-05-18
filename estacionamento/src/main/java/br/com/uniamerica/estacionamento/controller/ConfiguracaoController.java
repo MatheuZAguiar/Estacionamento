@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/api/configuracao")
@@ -53,11 +54,15 @@ public class ConfiguracaoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody @Valid final Configuracao configuracao) {
-        if (id.equals(configuracao.getId()) && !this.configuracaoRepository.findById(id).isEmpty()) {
-            this.configuracaoRepository.save(configuracao);
+        Optional<Configuracao> configuracaoOptional = configuracaoRepository.findById(id);
+        if (configuracaoOptional.isPresent()) {
+            Configuracao existingConfiguracao = configuracaoOptional.get();
+            configuracaoRepository.save(existingConfiguracao);
+            return ResponseEntity.ok().body("Registro atualizado com sucesso");
         } else {
-            return ResponseEntity.badRequest().body("Id nao foi encontrado");
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().body("Registro atualizado com sucesso");
     }
+
+
 }
