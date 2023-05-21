@@ -64,5 +64,20 @@ public class ConfiguracaoController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletar(@PathVariable final Long id) {
+        Optional<Configuracao> configuracaoOptional = configuracaoRepository.findById(id);
+
+        if (configuracaoOptional.isPresent()) {
+            Configuracao configuracao = configuracaoOptional.get();
+            configuracaoRepository.delete(configuracao);
+            return ResponseEntity.ok().body("O registro da configuração foi deletado com sucesso");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
 
 }
