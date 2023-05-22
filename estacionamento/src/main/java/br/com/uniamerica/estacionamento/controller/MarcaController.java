@@ -27,7 +27,12 @@ public class MarcaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Marca> findById(@PathVariable Long id){
-        return ResponseEntity.ok().body(this.marcaRepository.findById(id).orElse(new Marca()));
+        Optional<Marca> marcaOptional = marcaRepository.findById(id);
+        if (marcaOptional.isPresent()) {
+            return ResponseEntity.ok().body(marcaOptional.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/{ativo}")
@@ -40,6 +45,7 @@ public class MarcaController {
 
         return ResponseEntity.ok().body(marcas);
     }
+
     @GetMapping
     public ResponseEntity<?> findAll() {
         List<Marca> marcas = this.marcaRepository.findAll();
@@ -59,13 +65,17 @@ public class MarcaController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody @Valid final Marca marca) {
-        if (id.equals(marca.getId()) && !this.marcaRepository.findById(id).isEmpty()) {
-            this.marcaRepository.save(marca);
+        Optional<Marca> marcaOptional = marcaRepository.findById(id);
+        if (marcaOptional.isPresent()) {
+            Marca existingMarca = marcaOptional.get();
+            existingMarca.setNomeMarca(marca.getNomeMarca()); // Atualizar outros campos, se necessário
+            marcaRepository.save(existingMarca);
+            return ResponseEntity.ok().body("Registro atualizado com sucesso");
         } else {
-            return ResponseEntity.badRequest().body("Id nao foi encontrado");
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().body("Registro atualizado com sucesso");
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Long id) {
         Optional<Marca> optionalMarca = marcaRepository.findById(id);
@@ -87,7 +97,9 @@ public class MarcaController {
                 marcaRepository.save(marca);
                 return ResponseEntity.ok("A marca estava vinculada a uma ou mais movimentações e foi desativada com sucesso");
             }
-        } else {
+        } else
+
+        {
             return ResponseEntity.notFound().build();
         }
     }
