@@ -12,9 +12,4 @@ import java.util.List;
 public interface CondutorRepository extends JpaRepository<Condutor, Long> {
     @Query("From Condutor where ativo = :ativo")
     public List<Condutor> findByAtivo(@Param("ativo")final boolean ativo);
-
-    boolean existsByCpf(String cpf);
-    boolean existsByTelefone(String telefone);
-    Condutor findByCpf(String cpf);
-    Condutor findByTelefone(String telefone);
 }

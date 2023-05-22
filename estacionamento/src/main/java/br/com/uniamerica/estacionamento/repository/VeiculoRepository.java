@@ -1,5 +1,7 @@
 package br.com.uniamerica.estacionamento.repository;
 
+import br.com.uniamerica.estacionamento.entity.Modelo;
+import br.com.uniamerica.estacionamento.entity.Tipo;
 import br.com.uniamerica.estacionamento.entity.Veiculo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,4 +15,8 @@ public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
 
     @Query("From Veiculo where ativo = :ativo")
     public List<Veiculo> findByAtivo(@Param("ativo")final boolean ativo);
+
+    List<Veiculo> findByModelo(Modelo modelo);
+
+
 }

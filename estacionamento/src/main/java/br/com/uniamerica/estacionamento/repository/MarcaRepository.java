@@ -13,7 +13,4 @@ public interface MarcaRepository extends JpaRepository<Marca, Long> {
 
     @Query("From Marca where ativo = :ativo")
     public List<Marca> findByAtivo(@Param("ativo")final boolean ativo);
-
-    boolean existsByNomeMarca(String nomeMarca);
-    Marca findByNomeMarca(String nomeMarca);
 }

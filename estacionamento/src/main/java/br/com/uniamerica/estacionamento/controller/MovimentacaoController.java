@@ -1,8 +1,9 @@
 package br.com.uniamerica.estacionamento.controller;
 
+import br.com.uniamerica.estacionamento.entity.Condutor;
+import br.com.uniamerica.estacionamento.entity.Configuracao;
 import br.com.uniamerica.estacionamento.entity.Movimentacao;
 import br.com.uniamerica.estacionamento.repository.MovimentacaoRepository;
-import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -45,13 +46,13 @@ public class MovimentacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody @Valid Movimentacao movimentacao) {
+    public ResponseEntity<?> cadastrar(@RequestBody Movimentacao movimentacao) {
         this.movimentacaoRepository.save(movimentacao);
         return ResponseEntity.ok().body("Registro cadastrado com sucesso");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable @Valid final @NotNull Long id, @RequestBody final Movimentacao movimentacao) {
+    public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody final Movimentacao movimentacao) {
         if (id.equals(movimentacao.getId()) && !this.movimentacaoRepository.findById(id).isEmpty()) {
             this.movimentacaoRepository.save(movimentacao);
         } else {

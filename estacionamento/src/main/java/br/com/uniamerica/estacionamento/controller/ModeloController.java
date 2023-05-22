@@ -1,6 +1,7 @@
 package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.*;
+import br.com.uniamerica.estacionamento.repository.MarcaRepository;
 import br.com.uniamerica.estacionamento.repository.ModeloRepository;
 import br.com.uniamerica.estacionamento.repository.VeiculoRepository;
 import jakarta.validation.Valid;
@@ -19,6 +20,9 @@ public class ModeloController {
 
     @Autowired
     ModeloRepository modeloRepository;
+
+    @Autowired
+    MarcaRepository marcaRepository;
 
     @Autowired
     VeiculoRepository veiculoRepository;

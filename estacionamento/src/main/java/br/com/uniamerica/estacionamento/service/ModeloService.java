@@ -1,9 +1,10 @@
 package br.com.uniamerica.estacionamento.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import br.com.uniamerica.estacionamento.entity.Marca;
 import br.com.uniamerica.estacionamento.entity.Modelo;
 import br.com.uniamerica.estacionamento.repository.ModeloRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -13,23 +14,47 @@ public class ModeloService {
     @Autowired
     private ModeloRepository modeloRepository;
 
-    public Modelo criarModelo(Modelo modelo) {
-        return modeloRepository.save(modelo);
+    @Autowired
+    private MarcaService marcaService;
+
+    @Autowired
+    private Marca marca;
+
+    public List<Modelo> buscarModelos() {
+        return modeloRepository.findAll();
     }
 
     public Modelo buscarModeloPorId(Long id) {
         return modeloRepository.findById(id).orElse(null);
     }
 
-    public List<Modelo> buscarTodosModelos() {
-        return modeloRepository.findAll();
+    public Modelo criarModelo(String nomeModelo, Marca marca, boolean ativo) {
+        Modelo modelo = new Modelo();
+        modelo.setNomeModelo(nomeModelo);
+        modelo.setMarca(marca);
+        modelo.setAtivo(ativo);
+        return modeloRepository.save(modelo);
     }
 
-    public void atualizarModelo(Modelo modelo) {
-        modeloRepository.save(modelo);
+    public Modelo atualizarModelo(Long id, Modelo modeloAtualizado) {
+        Modelo modeloExistente = modeloRepository.findById(id).orElse(null);
+        Marca marcaAtualizada = marcaService.buscarMarcaPorId(modeloAtualizado.getMarca().getId());
+        if (modeloExistente == null || marcaAtualizada == null) {
+            return null;
+        } else {
+            modeloExistente.setNomeModelo(modeloAtualizado.getNomeModelo());
+            modeloExistente.setMarca(marcaAtualizada);
+            return modeloRepository.save(modeloExistente);
+        }
     }
 
-    public void excluirModelo(Long id) {
-        modeloRepository.deleteById(id);
+    public boolean excluirModelo(Long id) {
+        Modelo modeloExistente = modeloRepository.findById(id).orElse(null);
+        if (modeloExistente == null) {
+            return false;
+        } else {
+            modeloRepository.delete(modeloExistente);
+            return true;
+        }
     }
 }

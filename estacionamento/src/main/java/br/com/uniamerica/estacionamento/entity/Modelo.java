@@ -17,6 +17,6 @@ public class Modelo extends AbstractEntity {
 
     @Getter @Setter
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "marca", unique = true, nullable = false)
+    @JoinColumn(name = "nome_marca", unique = true, nullable = false)
     private Marca marca;
 }

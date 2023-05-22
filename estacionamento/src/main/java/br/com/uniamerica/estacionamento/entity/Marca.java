@@ -15,7 +15,7 @@ public class Marca extends AbstractEntity {
 
     @Getter @Setter
     @NotBlank(message = "O nome da marca é obrigatório")
-    @Length(max = 15, message = "O nome da marca deve ter no máximo 15 caracteres")
-    @Column(name = "nome_marca", nullable = false, unique = true, length = 15)
+    @Length(max = 25, message = "O nome da marca deve ter no máximo 25 caracteres")
+    @Column(name = "nome_marca", nullable = false, unique = true, length = 25)
     private String nomeMarca;
 }
