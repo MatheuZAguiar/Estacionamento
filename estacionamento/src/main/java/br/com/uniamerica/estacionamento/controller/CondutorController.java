@@ -21,17 +21,6 @@ public class CondutorController {
         this.condutorService = condutorService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id) {
-        Condutor condutor = condutorService.buscarCondutorPorId(id);
-
-        if (condutor != null) {
-            return ResponseEntity.ok().body(condutor);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @GetMapping("/ativo/{ativo}")
     public ResponseEntity<?> findByAtivo(@PathVariable boolean ativo) {
         List<Condutor> condutores = condutorService.buscarCondutoresPorAtivo(ativo);

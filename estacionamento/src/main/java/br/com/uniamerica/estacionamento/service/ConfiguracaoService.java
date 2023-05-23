@@ -5,14 +5,22 @@ import br.com.uniamerica.estacionamento.repository.ConfiguracaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ConfiguracaoService {
 
     @Autowired
     private ConfiguracaoRepository configuracaoRepository;
 
+    public ConfiguracaoService(ConfiguracaoRepository configuracaoRepository) {
+        this.configuracaoRepository = configuracaoRepository;
+    }
     public Configuracao buscarConfiguracao() {
         return configuracaoRepository.findById(1L).orElse(null);
+    }
+    public List<Configuracao> buscarTodasConfiguracoes() {
+        return configuracaoRepository.findAll();
     }
 
     public Configuracao atualizarConfiguracao(Configuracao configuracaoAtualizada) {
@@ -32,5 +40,9 @@ public class ConfiguracaoService {
             configuracaoExistente.setVagasVan(configuracaoAtualizada.getVagasVan());
             return configuracaoRepository.save(configuracaoExistente);
         }
+    }
+
+    public void deletarConfiguracao(Configuracao configuracao) {
+        configuracaoRepository.delete(configuracao);
     }
 }
