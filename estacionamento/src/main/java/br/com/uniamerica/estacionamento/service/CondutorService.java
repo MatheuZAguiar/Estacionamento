@@ -6,12 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CondutorService {
 
     @Autowired
-    private CondutorRepository condutorRepository;
+    private final CondutorRepository condutorRepository;
+
+    public CondutorService(CondutorRepository condutorRepository) {
+        this.condutorRepository = condutorRepository;
+    }
 
     public List<Condutor> buscarTodosCondutores() {
         return condutorRepository.findAll();
@@ -26,20 +31,30 @@ public class CondutorService {
     }
 
     public Condutor atualizarCondutor(Long id, Condutor condutorAtualizado) {
-        Condutor condutorExistente = condutorRepository.findById(id).orElse(null);
-        if (condutorExistente == null) {
-            return null;
+        Optional<Condutor> condutorExistente = condutorRepository.findById(id);
+        if (condutorExistente.isPresent()) {
+            Condutor condutor = condutorExistente.get();
+            condutor.setNomeCondutor(condutorAtualizado.getNomeCondutor());
+            condutor.setCpf(condutorAtualizado.getCpf());
+            condutor.setTelefone(condutorAtualizado.getTelefone());
+            condutor.setTempoDesconto(condutorAtualizado.getTempoDesconto());
+            condutor.setTempoPago(condutorAtualizado.getTempoPago());
+            return condutorRepository.save(condutor);
         } else {
-            condutorExistente.setNomeCondutor(condutorAtualizado.getNomeCondutor());
-            condutorExistente.setCpf(condutorAtualizado.getCpf());
-            condutorExistente.setTelefone(condutorAtualizado.getTelefone());
-            condutorExistente.setTempoDesconto(condutorAtualizado.getTempoDesconto());
-            condutorExistente.setTempoPago(condutorAtualizado.getTempoPago());
-            return condutorRepository.save(condutorExistente);
+            return null;
         }
     }
 
-    public void excluirCondutor(Long id) {
-        condutorRepository.deleteById(id);
+    public boolean excluirCondutor(Long id) {
+        if (condutorRepository.existsById(id)) {
+            condutorRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public List<Condutor> buscarCondutoresPorAtivo(boolean ativo) {
+        return condutorRepository.findByAtivo(ativo);
     }
 }
