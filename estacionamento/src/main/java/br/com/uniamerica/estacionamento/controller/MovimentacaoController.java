@@ -1,7 +1,7 @@
 package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Movimentacao;
-import br.com.uniamerica.estacionamento.repository.MovimentacaoRepository;
+import br.com.uniamerica.estacionamento.service.MovimentacaoService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,53 +9,73 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/api/movimentacao")
 public class MovimentacaoController {
 
     @Autowired
-    MovimentacaoRepository movimentacaoRepository;
+    private final MovimentacaoService movimentacaoService;
+
+    @Autowired
+    public MovimentacaoController(MovimentacaoService movimentacaoService) {
+        this.movimentacaoService = movimentacaoService;
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id){
-        return ResponseEntity.ok().body(this.movimentacaoRepository.findById(id));
+        Optional<Movimentacao> optionalMovimentacao = movimentacaoService.buscarMovimentacaoPorId(id);
+        if (optionalMovimentacao.isPresent()) {
+            return ResponseEntity.ok().body(optionalMovimentacao.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/{ativo}")
+    @GetMapping("/ativo/{ativo}")
     public ResponseEntity<?> findByAtivo(@PathVariable boolean ativo){
-        List<Movimentacao> movimentacaos = this.movimentacaoRepository.findByAtivo(ativo);
-
+        List<Movimentacao> movimentacaos = movimentacaoService.buscarMovimentacoesPorAtivo(ativo);
         if (movimentacaos.isEmpty()) {
             return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok().body(movimentacaos);
         }
-
-        return ResponseEntity.ok().body(movimentacaos);
     }
+
     @GetMapping
     public ResponseEntity<?> findAll() {
-        List<Movimentacao> movimentacaos = this.movimentacaoRepository.findAll();
-
+        List<Movimentacao> movimentacaos = movimentacaoService.buscarTodasMovimentacoes();
         if (movimentacaos.isEmpty()) {
             return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok().body(movimentacaos);
         }
-
-        return ResponseEntity.ok().body(movimentacaos);
     }
 
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody Movimentacao movimentacao) {
-        this.movimentacaoRepository.save(movimentacao);
+        Movimentacao novaMovimentacao = movimentacaoService.cadastrarMovimentacao(movimentacao);
         return ResponseEntity.ok().body("Registro cadastrado com sucesso");
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody final Movimentacao movimentacao) {
-        if (id.equals(movimentacao.getId()) && !this.movimentacaoRepository.findById(id).isEmpty()) {
-            this.movimentacaoRepository.save(movimentacao);
+        Movimentacao movimentacaoAtualizada = movimentacaoService.atualizarMovimentacao(id, movimentacao);
+        if (movimentacaoAtualizada != null) {
+            return ResponseEntity.ok().body("Registro atualizado com sucesso");
         } else {
-            return ResponseEntity.badRequest().body("Id nao foi encontrado");
+            return ResponseEntity.badRequest().body("Id não foi encontrado");
         }
-        return ResponseEntity.ok().body("Registro atualizado com sucesso");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletar(@PathVariable Long id) {
+        boolean sucesso = movimentacaoService.excluirMovimentacao(id);
+        if (sucesso) {
+            return ResponseEntity.ok("Registro excluído com sucesso");
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
