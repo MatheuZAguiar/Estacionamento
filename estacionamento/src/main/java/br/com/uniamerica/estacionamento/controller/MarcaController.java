@@ -13,6 +13,7 @@ import java.util.List;
 @RequestMapping("/api/marca")
 public class MarcaController {
 
+    @Autowired
     private final MarcaService marcaService;
 
     @Autowired

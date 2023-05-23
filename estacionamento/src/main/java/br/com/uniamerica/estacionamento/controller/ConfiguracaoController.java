@@ -1,6 +1,7 @@
 package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Configuracao;
+import br.com.uniamerica.estacionamento.repository.ConfiguracaoRepository;
 import br.com.uniamerica.estacionamento.service.ConfiguracaoService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,52 +10,83 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/api/configuracao")
 public class ConfiguracaoController {
 
-    private final ConfiguracaoService configuracaoService;
-
     @Autowired
-    public ConfiguracaoController(ConfiguracaoService configuracaoService) {
-        this.configuracaoService = configuracaoService;
+    ConfiguracaoService configuracaoService;
+    @Autowired
+    ConfiguracaoRepository configuracaoRepository;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable Long id){
+        return ResponseEntity.ok().body(this.configuracaoRepository.findById(id));
     }
 
-    @GetMapping
-    public ResponseEntity<List<Configuracao>> findAll() {
-        List<Configuracao> configuracoes = configuracaoService.buscarTodasConfiguracoes();
+    @GetMapping("/{ativo}")
+    public ResponseEntity<?> findByAtivo(@PathVariable boolean ativo){
+        List<Configuracao> configuracoes = this.configuracaoRepository.findByAtivo(ativo);
+
         if (configuracoes.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(configuracoes);
+
+        return ResponseEntity.ok().body(configuracoes);
+    }
+    @GetMapping
+    public ResponseEntity<?> findAll() {
+        List<Configuracao> configuracaos = this.configuracaoRepository.findAll();
+
+        if (configuracaos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok().body(configuracaos);
     }
 
+
     @PostMapping
-    public ResponseEntity<String> cadastrar(@RequestBody Configuracao configuracao) {
-        configuracaoService.atualizarConfiguracao(configuracao);
-        return ResponseEntity.ok("Registro cadastrado com sucesso");
+    public ResponseEntity<?> cadastrar(@RequestBody Configuracao configuracao) {
+        this.configuracaoRepository.save(configuracao);
+        return ResponseEntity.ok().body("Registro cadastrado com sucesso");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> atualizar(@PathVariable final @NotNull Long id, @RequestBody final Configuracao configuracao) {
-        Configuracao configuracaoExistente = configuracaoService.buscarConfiguracao();
-        if (configuracaoExistente != null && id.equals(configuracaoExistente.getId())) {
-            configuracaoService.atualizarConfiguracao(configuracao);
-            return ResponseEntity.ok("Registro atualizado com sucesso");
-        } else {
+    public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody final Configuracao configuracao) {
+        Optional<Configuracao> configuracaoCriado = configuracaoRepository.findById(id);
+
+        if (configuracaoCriado.isPresent()){
+            Configuracao configuracaoAtualizado = configuracaoCriado.get();
+
+            configuracaoService.atualizarConfiguracao(configuracaoAtualizado.getId(), configuracao);
+
+            return  ResponseEntity.ok().body("Registro de cadastro atulizado com sucesso");
+        }
+        else{
             return ResponseEntity.badRequest().body("ID não encontrado");
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable final @NotNull Long id) {
-        Configuracao configuracao = configuracaoService.buscarConfiguracao();
-        if (configuracao != null && id.equals(configuracao.getId())) {
-            configuracaoService.deletarConfiguracao(configuracao);
-            return ResponseEntity.ok("Registro deletado com sucesso");
+    public ResponseEntity<?> deletar(@PathVariable final Long id) {
+        Optional<Configuracao> optionalConfiguracao = configuracaoRepository.findById(id);
+
+        if (optionalConfiguracao.isPresent()) {
+            Configuracao configuracao = optionalConfiguracao.get();
+
+            if (configuracao.isAtivo()) {
+                configuracaoRepository.delete(configuracao);
+                return ResponseEntity.ok().body("O Registro de Configuração Foi Deletado com sucesso");
+            } else {
+                configuracao.setAtivo(false);
+                configuracaoRepository.save(configuracao);
+                return ResponseEntity.ok().body("A configuração foi desativada com sucesso");
+            }
         } else {
-            return ResponseEntity.badRequest().body("ID não encontrado");
+            return ResponseEntity.notFound().build();
         }
     }
 }

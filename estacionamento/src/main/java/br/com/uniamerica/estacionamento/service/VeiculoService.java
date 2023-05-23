@@ -19,16 +19,16 @@ public class VeiculoService {
     }
 
     public Veiculo buscarVeiculoPorId(Long id) {
-        Optional<Veiculo> veiculoOpt = veiculoRepository.findById(id);
-        return veiculoOpt.orElse(null);
-    }
-
-    public List<Veiculo> buscarVeiculos() {
-        return veiculoRepository.findAll();
+        Optional<Veiculo> optionalVeiculo = veiculoRepository.findById(id);
+        return optionalVeiculo.orElse(null);
     }
 
     public List<Veiculo> buscarVeiculosPorAtivo(boolean ativo) {
         return veiculoRepository.findByAtivo(ativo);
+    }
+
+    public List<Veiculo> buscarVeiculos() {
+        return veiculoRepository.findAll();
     }
 
     public Veiculo criarVeiculo(Veiculo veiculo) {
@@ -36,35 +36,29 @@ public class VeiculoService {
     }
 
     public Veiculo atualizarVeiculo(Long id, Veiculo veiculoAtualizado) {
-        Optional<Veiculo> veiculoOpt = veiculoRepository.findById(id);
-
-        if (veiculoOpt.isPresent() && id.equals(veiculoAtualizado.getId())) {
-            Veiculo veiculoExistente = veiculoOpt.get();
-            veiculoExistente.setPlaca(veiculoAtualizado.getPlaca());
-            veiculoExistente.setModelo(veiculoAtualizado.getModelo());
-            veiculoExistente.setCor(veiculoAtualizado.getCor());
-            veiculoExistente.setTipo(veiculoAtualizado.getTipo());
-            veiculoExistente.setAnoModelo(veiculoAtualizado.getAnoModelo());
-            return veiculoRepository.save(veiculoExistente);
-        }
-
-        return null;
-    }
-
-    public boolean excluirVeiculo(Long id) {
         Optional<Veiculo> optionalVeiculo = veiculoRepository.findById(id);
-
         if (optionalVeiculo.isPresent()) {
             Veiculo veiculo = optionalVeiculo.get();
-            if (veiculo.getMovimentacao() != null && veiculo.getMovimentacao().isAtivo()) {
-                veiculoRepository.delete(veiculo);
-            } else {
-                veiculo.setAtivo(false);
-                veiculoRepository.save(veiculo);
-            }
-            return true;
+            veiculo.setModelo(veiculoAtualizado.getModelo());
+            veiculo.setPlaca(veiculoAtualizado.getPlaca());
+            veiculo.setTipo(veiculoAtualizado.getTipo());
+            veiculo.setAnoModelo(veiculoAtualizado.getAnoModelo());
+            veiculo.setCor(veiculoAtualizado.getCor());
+            veiculo.setMovimentacao(veiculoAtualizado.getMovimentacao());
+            return veiculoRepository.save(veiculo);
+        } else {
+            return null;
         }
-
-        return false;
     }
-}
+
+    public boolean deletar(Long id) {
+        Veiculo veiculo = buscarVeiculoPorId(id);
+        if (veiculo != null) {
+            veiculoRepository.delete(veiculo);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    }
+
