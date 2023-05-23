@@ -1,73 +1,70 @@
 package br.com.uniamerica.estacionamento.service;
 
-import br.com.uniamerica.estacionamento.entity.Cor;
-import br.com.uniamerica.estacionamento.entity.Modelo;
-import br.com.uniamerica.estacionamento.entity.Tipo;
 import br.com.uniamerica.estacionamento.entity.Veiculo;
 import br.com.uniamerica.estacionamento.repository.VeiculoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VeiculoService {
 
-    @Autowired
-    private VeiculoRepository veiculoRepository;
+    private final VeiculoRepository veiculoRepository;
 
     @Autowired
-    private ModeloService modeloService;
-    /*
-        @Autowired
-        private Tipo tipo;
-    */
-    public List<Veiculo> buscarTodos() {
+    public VeiculoService(VeiculoRepository veiculoRepository) {
+        this.veiculoRepository = veiculoRepository;
+    }
+
+    public Veiculo buscarVeiculoPorId(Long id) {
+        Optional<Veiculo> veiculoOpt = veiculoRepository.findById(id);
+        return veiculoOpt.orElse(null);
+    }
+
+    public List<Veiculo> buscarVeiculos() {
         return veiculoRepository.findAll();
     }
 
-    public Veiculo buscarPorId(Long id) {
-        return veiculoRepository.findById(id).orElse(null);
+    public List<Veiculo> buscarVeiculosPorAtivo(boolean ativo) {
+        return veiculoRepository.findByAtivo(ativo);
     }
 
-    public Veiculo salvar(Veiculo veiculo) {
+    public Veiculo criarVeiculo(Veiculo veiculo) {
         return veiculoRepository.save(veiculo);
     }
 
-    public boolean deletar(Long id) {
-        Veiculo veiculo = buscarPorId(id);
-        if (veiculo != null) {
-            veiculoRepository.delete(veiculo);
+    public Veiculo atualizarVeiculo(Long id, Veiculo veiculoAtualizado) {
+        Optional<Veiculo> veiculoOpt = veiculoRepository.findById(id);
+
+        if (veiculoOpt.isPresent() && id.equals(veiculoAtualizado.getId())) {
+            Veiculo veiculoExistente = veiculoOpt.get();
+            veiculoExistente.setPlaca(veiculoAtualizado.getPlaca());
+            veiculoExistente.setModelo(veiculoAtualizado.getModelo());
+            veiculoExistente.setCor(veiculoAtualizado.getCor());
+            veiculoExistente.setTipo(veiculoAtualizado.getTipo());
+            veiculoExistente.setAnoModelo(veiculoAtualizado.getAnoModelo());
+            return veiculoRepository.save(veiculoExistente);
+        }
+
+        return null;
+    }
+
+    public boolean excluirVeiculo(Long id) {
+        Optional<Veiculo> optionalVeiculo = veiculoRepository.findById(id);
+
+        if (optionalVeiculo.isPresent()) {
+            Veiculo veiculo = optionalVeiculo.get();
+            if (veiculo.getMovimentacao() != null && veiculo.getMovimentacao().isAtivo()) {
+                veiculoRepository.delete(veiculo);
+            } else {
+                veiculo.setAtivo(false);
+                veiculoRepository.save(veiculo);
+            }
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
-
-    public Veiculo criarVeiculo(String placa, Long idModelo, String cor, Tipo tipo, int anoModelo) {
-        Modelo modelo = modeloService.buscarModeloPorId(idModelo);
-        if (modelo == null) {
-            return null;
-        } else {
-            Veiculo veiculo = new Veiculo();
-            veiculo.setPlaca(placa);
-            veiculo.setModelo(modelo);
-            veiculo.setCor(String.valueOf(Cor.valueOf(cor)));
-            veiculo.setTipo(tipo);
-            veiculo.setAnoModelo(anoModelo);
-            return veiculoRepository.save(veiculo);
-        }
-    }
-
-    public List<Veiculo> buscarVeiculosPorModelo(Long idModelo) {
-        Modelo modelo = modeloService.buscarModeloPorId(idModelo);
-        if (modelo == null) {
-            return null;
-        } else {
-            return veiculoRepository.findByModelo(modelo);
-        }
-    }
-
-
 }
-

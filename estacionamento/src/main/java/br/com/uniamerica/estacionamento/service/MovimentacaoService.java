@@ -11,6 +11,7 @@ import java.util.Optional;
 @Service
 public class MovimentacaoService {
 
+    @Autowired
     private final MovimentacaoRepository movimentacaoRepository;
 
     @Autowired
