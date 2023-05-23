@@ -13,8 +13,12 @@ import java.util.List;
 @Service
 public class MarcaService {
 
+    private final MarcaRepository marcaRepository;
+
     @Autowired
-    private MarcaRepository marcaRepository;
+    public MarcaService(MarcaRepository marcaRepository) {
+        this.marcaRepository = marcaRepository;
+    }
 
     public List<Marca> buscarMarcas() {
         return marcaRepository.findAll();
@@ -52,11 +56,12 @@ public class MarcaService {
         Marca marca = marcaRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Marca não encontrada"));
         marcaRepository.delete(marca);
     }
-}
-@Configuration
-class AppConfig {
-    @Bean
-    public Marca marca() {
-        return new Marca();
+
+    @Configuration
+    class AppConfig {
+        @Bean
+        public Marca marca() {
+            return new Marca();
+        }
     }
 }
