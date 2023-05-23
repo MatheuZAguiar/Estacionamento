@@ -4,9 +4,11 @@ import br.com.uniamerica.estacionamento.entity.Marca;
 import br.com.uniamerica.estacionamento.entity.Modelo;
 import br.com.uniamerica.estacionamento.repository.ModeloRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ModeloService {
@@ -17,8 +19,6 @@ public class ModeloService {
     @Autowired
     private MarcaService marcaService;
 
-    @Autowired
-    private Marca marca;
 
     public List<Modelo> buscarModelos() {
         return modeloRepository.findAll();
@@ -35,19 +35,18 @@ public class ModeloService {
         modelo.setAtivo(ativo);
         return modeloRepository.save(modelo);
     }
-
     public Modelo atualizarModelo(Long id, Modelo modeloAtualizado) {
-        Modelo modeloExistente = modeloRepository.findById(id).orElse(null);
-        Marca marcaAtualizada = marcaService.buscarMarcaPorId(modeloAtualizado.getMarca().getId());
-        if (modeloExistente == null || marcaAtualizada == null) {
-            return null;
-        } else {
-            modeloExistente.setNomeModelo(modeloAtualizado.getNomeModelo());
-            modeloExistente.setMarca(marcaAtualizada);
-            return modeloRepository.save(modeloExistente);
+        Optional<Modelo> optionalModelo = modeloRepository.findById(id);
+        if (optionalModelo.isPresent()) {
+            Modelo modelo = optionalModelo.get();
+            modelo.setNomeModelo(modeloAtualizado.getNomeModelo());
+            modelo.setMarca(modeloAtualizado.getMarca());
+            modelo.setAtivo(modeloAtualizado.isAtivo());
+            modeloRepository.save(modelo);
+            return modelo;
         }
+        return null;
     }
-
     public boolean excluirModelo(Long id) {
         Modelo modeloExistente = modeloRepository.findById(id).orElse(null);
         if (modeloExistente == null) {
