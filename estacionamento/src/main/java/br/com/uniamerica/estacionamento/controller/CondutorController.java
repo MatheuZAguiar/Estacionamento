@@ -17,10 +17,15 @@ public class CondutorController {
     @Autowired
     private final CondutorService condutorService;
 
+    @Autowired
     public CondutorController(CondutorService condutorService) {
         this.condutorService = condutorService;
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable Long id){
+        return ResponseEntity.ok().body(this.condutorService.buscarCondutorPorId(id));
+    }
     @GetMapping("/ativo/{ativo}")
     public ResponseEntity<?> findByAtivo(@PathVariable boolean ativo) {
         List<Condutor> condutores = condutorService.buscarCondutoresPorAtivo(ativo);

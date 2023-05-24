@@ -2,6 +2,7 @@ package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Movimentacao;
 import br.com.uniamerica.estacionamento.service.MovimentacaoService;
+import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -54,13 +55,13 @@ public class MovimentacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody Movimentacao movimentacao) {
+    public ResponseEntity<?> cadastrar(@RequestBody @Valid Movimentacao movimentacao) {
         Movimentacao novaMovimentacao = movimentacaoService.cadastrarMovimentacao(movimentacao);
         return ResponseEntity.ok().body("Registro cadastrado com sucesso");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody final Movimentacao movimentacao) {
+    public ResponseEntity<?> atualizar(@PathVariable final @NotNull Long id, @RequestBody @Valid Movimentacao movimentacao) {
         Movimentacao movimentacaoAtualizada = movimentacaoService.atualizarMovimentacao(id, movimentacao);
         if (movimentacaoAtualizada != null) {
             return ResponseEntity.ok().body("Registro atualizado com sucesso");
